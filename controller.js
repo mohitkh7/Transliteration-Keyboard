@@ -11,13 +11,15 @@ app.controller('transliter', function($scope, $http, $window) {
     $scope.getSuggestions = function() {
         var arr = $scope.text.split(" ");
         var word = arr.pop();
+        var cacheKey = word + "-" + $scope.language;
         $scope.showError = false;
+
         if (word == "" || word == null){
             // do nothing
             $scope.suggestionArr = [];
         }
-        else if (word in cache){
-            $scope.suggestionArr = cache[word];
+        else if (cacheKey in cache){
+            $scope.suggestionArr = cache[cacheKey];
         }
         else{
             $http({
@@ -26,7 +28,7 @@ app.controller('transliter', function($scope, $http, $window) {
                 params: {inString: word, lang:$scope.language}
             })
             .then(function(resp){
-                cache[word] = resp["data"]["twords"][0]["options"];
+                cache[cacheKey] = resp["data"]["twords"][0]["options"];
                 $scope.updateSuggestions();
             }, function(err){
                 $scope.suggestionArr = [];
@@ -39,7 +41,8 @@ app.controller('transliter', function($scope, $http, $window) {
     $scope.updateSuggestions = function(){
         var arr = $scope.text.split(" ");
         var word = arr.pop();
-        $scope.suggestionArr = cache[word];
+        var cacheKey = word + "-" + $scope.language;
+        $scope.suggestionArr = cache[cacheKey];
     };
 
 
