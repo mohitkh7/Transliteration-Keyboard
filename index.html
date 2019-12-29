@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Transliteration Keyboard</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+        <style>
+            body{
+                padding-top: 70px;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Transliteration Keyboard</a>
+                </div>
+            </div>
+        </nav>
+        <div class="container" ng-app="app" ng-controller="transliter">
+            <div class="row">
+                <div class="col-md-8 col-sm-12">
+                    <textarea class="form-control" rows="10" ng-model="text" ng-change="getSuggestions()"></textarea>
+                </div>
+                <div class="col-md-4 col-sm-12">
+                    <p>Translition Language : </p>
+                    <select class="form-control" ng-model="language">
+                        <option ng-repeat="lang in languageArr" value="{{lang}}">{{ lang }}</option>
+                    </select>
+                    <br>
+                    <button class="btn">Copy Text</button>
+                    <button class="btn" ng-click="clearText()">Clear Text</button>
+                    <p>
+                        Suggestions: 
+                        <ul>
+                            <li ng-repeat="suggestion in suggestionArr track by $index" ng-click="changeWord(suggestion)">{{ suggestion }}</li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
+            
+            
+        </div>
+
+            
+    </body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script>
+        var app = angular.module('app', []);
+        app.controller('transliter', function($scope, $http) {
+            $scope.languageArr = ["hindi", "tamil", "telugu", "bengali", "gujarati", "marathi", "kannada", "malayalam", "punjabi", "nepali"];
+            $scope.language = "hindi";
+            const URL = "http://146.148.85.67/processWordJSON";
+            var cache = {};
+            $scope.getSuggestions = function() {
+                var arr = $scope.text.split(" ");
+                var word = arr.pop();
+                if (word in cache){
+                    $scope.suggestionArr = cache[word];
+                }
+                else{
+                    $http({
+                        url: URL,
+                        method: "GET",
+                        params: {inString: word, lang:$scope.language}
+                    })
+                    .then(function(resp){
+                        cache[word] = resp["data"]["twords"][0]["options"];
+                        $scope.updateSuggestions();
+                    }, function(err){
+                        $scope.suggestionArr = [];
+                        console.log("Error occured");
+                    });
+                }
+            };
+
+            $scope.updateSuggestions = function(){
+                var arr = $scope.text.split(" ");
+                var word = arr.pop();
+                $scope.suggestionArr = cache[word];
+            };
+
+            $scope.changeWord = function(newWord) {
+                var arr = $scope.text.split(" ");
+                arr.pop();
+                arr.push(newWord + " ");
+                $scope.text = arr.join(" ");
+            };
+
+            $scope.clearText = function() {
+                $scope.text = "";
+            }
+        });
+    </script>
+</html>
