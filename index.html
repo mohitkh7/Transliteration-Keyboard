@@ -26,15 +26,15 @@
                         <option data-ng-repeat="lang in languageArr" value="{{lang}}">{{ lang }}</option>
                     </select>
                     <br>
-                    <div class="button-group">
+                    <div class="button-group" id="suggestion">
                         <button class="btn btn-default" id="copyButton" title="text copied" data-ng-click="copyText()">Copy Text</button>
                         <button class="btn btn-default" id="clearButton" title="text cleared" data-ng-click="clearText()">Clear Text</button>
                     </div>
                     <p>
                         Suggestions: 
                         <ul>
-                            <li data-ng-repeat="suggestion in suggestionArr track by $index" data-ng-click="changeWord(suggestion)">{{ suggestion }}</li>
-                            <li class="text-danger" data-ng-if="showError">Error in fetching in suggestions</li>
+                            <li class="clickable" title="click to transilite word" data-ng-repeat="suggestion in suggestionArr track by $index" data-ng-click="changeWord(suggestion)">{{ suggestion }}</li>
+                            <li class="text-danger clickable" title="click to transilite word" data-ng-if="showError">Error in fetching in suggestions</li>
                         </ul>
                     </p>
                 </div>

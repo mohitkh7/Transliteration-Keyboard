@@ -6,11 +6,12 @@ app.controller('transliter', function($scope, $http, $window) {
     $scope.languageArr = ["hindi", "tamil", "telugu", "bengali", "gujarati", "marathi", "kannada", "malayalam", "punjabi", "nepali"];
     $scope.language = $window.localStorage.getItem('language') || defaultLang;
     $scope.showError = false;
+    $scope.flag = false;
 
     // fetch the transiltion suggestions for current typing word
     $scope.getSuggestions = function() {
-        var arr = $scope.text.split(" ");
-        var word = arr.pop();
+        var word = $scope.getLastWord();
+        // console.log(word);
         var cacheKey = word + "-" + $scope.language;
         $scope.showError = false;
 
@@ -39,8 +40,8 @@ app.controller('transliter', function($scope, $http, $window) {
     };
 
     $scope.updateSuggestions = function(){
-        var arr = $scope.text.split(" ");
-        var word = arr.pop();
+        $scope.flag = true;
+        let word = $scope.getLastWord();
         var cacheKey = word + "-" + $scope.language;
         $scope.suggestionArr = cache[cacheKey];
     };
@@ -48,15 +49,22 @@ app.controller('transliter', function($scope, $http, $window) {
 
     // replace last word in text with transilted word
     $scope.changeWord = function(newWord) {
-        var arr = $scope.text.split(" ");
-        arr.pop();
-        arr.push(newWord + " ");
-        $scope.text = arr.join(" ");
+        var word = $scope.getLastWord();
+        $scope.text = $scope.text.substring(0, $scope.text.lastIndexOf(word));
+
+        $scope.text += newWord + " ";
         // focus back on text area
         document.getElementById("text").focus();
         // clears suggestions
         $scope.suggestionArr = [];
     };
+
+    // fetch the last word from current text
+    $scope.getLastWord = function() {
+        let matchArr = $scope.text.match(/\s/g) || [];
+        let index = $scope.text.lastIndexOf(matchArr[matchArr.length - 1])
+        return $scope.text.substring(index + 1, );
+    }
 
     $scope.langChange = function() {
         $window.localStorage.setItem('language', $scope.language);
